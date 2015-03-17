@@ -1,0 +1,3 @@
+# Don't accidentally include any generated files
+*.html
+*.pdf
