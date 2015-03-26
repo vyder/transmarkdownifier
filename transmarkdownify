@@ -1,33 +1,92 @@
 #!/usr/bin/env ruby
 
-# Load external dependencies
-begin
-    # Github Markup API
-    require 'github/markup'
+def transmarkdownify
+    # Load external dependencies
+    begin
+        # To listen to file changes
+        require 'listen'
 
-    # Markdown parser used by github/markup
-    require 'redcarpet'
+        # Github Markup API
+        require 'github/markup'
 
-    # Pretty output
-    require 'colorize'
+        # Markdown parser used by github/markup
+        require 'redcarpet'
 
-rescue LoadError => e
-  gem_name = e.path
-  puts "Oops. Looks like you're missing the '#{gem_name}' gem."
-  puts "Try running 'gem install #{gem_name}' to resolve this."
-  exit(1)
+        # Templating
+        require 'erb'
+
+        # Pretty output
+        require 'colorize'
+
+    rescue LoadError => e
+      gem_name = e.path
+      puts "Oops. Looks like you're missing the '#{gem_name}' gem."
+      puts "Try running 'gem install #{gem_name}' to resolve this."
+      exit(1)
+    end
+    %x(which chrome-cli)
+    if $?.exitstatus != 0
+        puts "Oops. Looks like you don't have the 'chrome-cli' installed.".red
+        puts "Try running 'brew install chrome-cli to resolve this.".red
+        exit(1)
+    end
+
+
+    filename_arg = ARGV[0]
+    if filename_arg.nil? or !File.exists? filename_arg
+        puts "Please specify a filename".red
+        exit(1)
+    end
+
+    file = File.new(filename_arg)
+    filename = File.basename(file)
+    path = File.absolute_path(File.dirname(file))
+
+    html_file = convert_markdown_to_html(file)
+    tab_id = open_in_chrome(html_file)
+
+    listener = Listen.to(path, only: /^#{filename}$/) do |modified, added, removed|
+        convert_markdown_to_html(file)
+        %x( chrome-cli reload -t #{tab_id} )
+    end
+
+    listener.start
+    puts "Climbing under the box...".green
+    puts "[Ctrl+C to quit]".green
+    begin
+      sleep
+    # Gotta catch 'em all
+    rescue SystemExit, Interrupt, StandardError, Exception => e
+      puts ""
+      puts "Transmarkdownification complete!".green
+      exit(0)
+    end
 end
 
-filename = ARGV[0]
-if filename.nil? or !File.exists? filename
-    puts "Please specify a filename".red
-    exit(1)
+def convert_markdown_to_html(filename)
+    filename = File.expand_path(filename)
+
+    doc_name = File.basename(filename, ".*")
+    path = File.absolute_path(File.dirname(filename))
+
+    html_filename = "#{path}/#{doc_name}.html"
+
+    template = ERB.new(template_string)
+    content = GitHub::Markup.render(filename, File.read(filename))
+
+    File.open(html_filename, 'w') {|f| f.write(template.result(binding)) }
+
+    return html_filename
 end
-file = File.read(filename).force_encoding("ISO-8859-1").encode("utf-8")
 
-doc_name = filename.match(/^([^\.]*)\.(md|markdown)$/)[1]
+def open_in_chrome( html_file )
+    output = %x( chrome-cli open "file://#{File.expand_path(html_file)}" )
+    return output.match(/^Id: (\d+)\n/)[1]
+end
 
-html = <<EOF
+def template_string
+
+    html = <<EOF
 <style>
 @font-face {
   font-family: octicons-anchor;
@@ -703,10 +762,12 @@ html = <<EOF
     }
 </style>
 <article class="markdown-body">
+    <%= content %>
+</article>
 EOF
-html += GitHub::Markup.render(filename, File.read(filename))
 
-html += "\n</article>"
 
-File.open("#{doc_name}.html", 'w') {|f| f.write(html) }
-%x( open #{doc_name}.html )
+end
+
+# Begin the Transmarkdownification process muhahahaha!
+transmarkdownify
