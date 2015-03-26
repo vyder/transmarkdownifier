@@ -4,17 +4,12 @@ I've decided that none of the [existing million kinds of markdown editors](http:
 
 ## Usage
 
-1. `cp transmarkdownify ~/bin`
-2. Make sure your `~/bin` is in your PATH
-3. `transmarkdownify functional-specs.md`
-4. `transmarkdownify` will generate a `functional-specs.html` file and open it in your browser
+1. `gem install transmarkdownifier`
+2. `transmarkdownify functional-specs.md`
+4. The `Transmarkdownifier` will generate a `functional-specs.html` file and open it in your browser and keep an eye on it for you as continue to work on your markdown doc
 5. Print to pdf from your browser
 
 ## Transmarkdownification is a new technology
-
-Ideally, I guess I want something like [Mou](http://25.io/mou) that will export pretty Github-styled pdfs. And also parse `<br>` tags (so I can add custom line breaks to reflow pages properly).
-
-Till then this is where I'm at with it.
 
 ![](http://assets.amuniversal.com/8d40c700deba01317193005056a9545d)
 ![](http://assets.amuniversal.com/8e9507d0deba01317193005056a9545d)

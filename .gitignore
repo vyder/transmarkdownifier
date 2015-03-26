@@ -1,3 +1,6 @@
 # Don't accidentally include any generated files
 *.html
 *.pdf
+
+# None of that gem stuff either
+*.gem

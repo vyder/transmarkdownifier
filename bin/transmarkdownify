@@ -9,9 +9,6 @@ def transmarkdownify
         # Github Markup API
         require 'github/markup'
 
-        # Markdown parser used by github/markup
-        require 'redcarpet'
-
         # Templating
         require 'erb'
 
