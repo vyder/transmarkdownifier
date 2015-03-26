@@ -2,6 +2,8 @@
 
 I've decided that none of the [existing million kinds of markdown editors](http://mashable.com/2013/06/24/markdown-tools/) out there are any good for me to write my design docs on. So I'm creating my own here using [Github's Markup project](github/markup).
 
+![](screenshots/workflow.png)
+
 ## Usage
 
 1. `gem install transmarkdownifier`
