@@ -1,0 +1,15 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <% for style in stylesheets %>
+    <style type="text/css">
+        <%= style %>
+    </style>
+    <% end %>
+</head>
+<body>
+    <article class="markdown-body">
+        <%= content %>
+    </article>
+</body>
+</html>
